@@ -48,4 +48,6 @@ def load_and_clean_chunked(verbose=False):
     })
 
 if __name__ == "__main__":
-    print(load_and_clean_chunked(verbose=True))
+    # Load data like this
+    df = load_and_clean_chunked(verbose=True)
+    print(df)
