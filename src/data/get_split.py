@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 import os.path
 from glob import glob
+import os, errno
 
 DIR = Path(os.path.abspath('')).resolve()
 ROOT = DIR.parent.parent
@@ -18,8 +19,6 @@ def get_split(verbose=False):
             *_test is a 2d numpy array of tag indices (len(kept_tags) per sample)
             index_to_tag is a numpy array mapping indices to their tag string
     """
-    # with open(SPLIT, 'rb') as f:
-    #     return pickle.load(f)
     loaded = np.load(SPLIT)
     X_train = loaded['X_train']
     X_test = loaded['X_test']
@@ -32,10 +31,15 @@ def save_split(X_train, y_train, X_test, y_test, index_to_tag, verbose=False):
     """
         Called by 'make_split' to serialize the split to a shared location
     """
-    # with open(SPLIT, 'wb') as f:
-    #     pickle.dump(data, f)
+    try_mkdir(str(ROOT/"data"))
     np.savez_compressed(SPLIT, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, index_to_tag=index_to_tag)
 
+def try_mkdir(dirname):
+    try:
+        os.mkdir(dirname)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
 
 if __name__ == "__main__":
     (X_train, y_train, X_test, y_test), index_to_tag = get_split(verbose=True)
