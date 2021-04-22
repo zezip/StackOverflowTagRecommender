@@ -9,6 +9,7 @@ from tqdm import tqdm
 DIR = Path(os.path.abspath('')).resolve()
 ROOT = DIR.parent.parent
 DATASET_GLOB = str(ROOT/"data"/"chunked"/"*")
+CHUNKS_USED = 1
 
 CLEANR = re.compile('<.*?>')
 def clean_html(raw_html):
@@ -26,7 +27,12 @@ def load_and_clean_chunked(verbose=False):
         Call this function to get the dataset
         Returns a pandas DataFrame where each row is an entry, with 3 columns (title, body, tags)
     """
-    files = glob(DATASET_GLOB)
+
+    glob_res = glob(DATASET_GLOB)
+    if verbose:
+        print(f"Taking {CHUNKS_USED} chunk out of {len(glob_res)}")
+    files = glob_res[:1]
+
     title_list = []
     body_list = []
     tags_list = []

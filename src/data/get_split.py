@@ -6,7 +6,7 @@ from glob import glob
 DIR = Path(os.path.abspath('')).resolve()
 ROOT = DIR.parent.parent
 # SPLIT = str(ROOT/"data"/"split.npz")
-SPLIT = str(ROOT/"data"/"split"/"split.npz")
+SPLIT = str(ROOT/"data"/"split.npz")
 
 def get_split(verbose=False):
     """
