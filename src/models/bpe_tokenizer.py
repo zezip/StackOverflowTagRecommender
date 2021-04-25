@@ -1,14 +1,11 @@
 import sys
 from pathlib import Path
-import pandas as pd
 import os, os.path
-from tqdm import tqdm
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
 from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.normalizers import Sequence, Lowercase, NFD, StripAccents
-from collections import Counter
 import errno
 import numpy as np
 

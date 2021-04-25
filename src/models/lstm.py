@@ -9,7 +9,7 @@ from keras.layers.core import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing.text import Tokenizer
-from keras.layers import InputLayer, Conv1D
+from keras.layers import Conv1D
 import matplotlib.pyplot as plt
 import numpy as np
 import sys

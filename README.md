@@ -7,6 +7,8 @@ Dataset sourced from https://archive-org.proxy.lib.umich.edu/details/stackexchan
 
 To run all main experiments: `chmod +x experiments.sh; ./experiments.sh` (Note that running this will download a ~1GB copy of GloVe)
 
-To re-make the set data split: `python src/data/make_split.py`
+Alternatively, you can run the python files outlined `experiments.sh` individually (in the case that one is incompatible with your environment)
+
+To remake the preset data split: `python src/data/make_split.py`
 
 To retrain the BPE encoder on the unsupervised dataset: `python src/models/bpe_tokenizer.py`
