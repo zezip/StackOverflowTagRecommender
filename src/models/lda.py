@@ -5,6 +5,7 @@ import numpy as np
 import os, os.path
 from tqdm import tqdm
 from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
@@ -29,7 +30,8 @@ if __name__ == "__main__":
     X_test = X_test.flatten()
 
     # Load vectorizer and fit transform
-    vectorizer = load_bpe_encoder()
+    # vectorizer = load_bpe_encoder()
+    vectorizer = CountVectorizer()
     X_train_embedded = vectorizer.fit_transform(X_train)
 
     # Calculating a perplexity score for each model- a good model minimizes perplexity
@@ -57,4 +59,4 @@ if __name__ == "__main__":
         'Perplexities' : perplexities
     })
     sns.lineplot(data=df, x='# Topics', y='Perplexities')
-    plt.savefig('perps_small_scale.png')
+    plt.savefig('count_perps_small_scale.png')

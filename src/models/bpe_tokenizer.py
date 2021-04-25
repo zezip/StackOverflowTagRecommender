@@ -28,6 +28,13 @@ def load_bpe_encoder(verbose=False):
     """
     return BPEVectorizer(Tokenizer.from_file(TOKENIZER))
 
+def load_bpe_tfidf_encoder(verbose=False):
+    """
+        Loads the encoder as an object that matches the CountVectorizer API/signature
+        This version is the same, except it does TFIDF transforms
+    """
+    return BPEVectorizerTFIDF(Tokenizer.from_file(TOKENIZER))
+
 class BPEVectorizer:
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -43,6 +50,53 @@ class BPEVectorizer:
         for i in range(len(y)):
             for j in y[i].ids:
                 res[i, j] += 1
+        return res
+
+    def fit_transform(self, X):
+        """
+            Return X as a sparse matrix (bag-of-words)
+        """
+        self.fit(X)
+        return self.transform(X)
+
+class BPEVectorizerTFIDF:
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+        self.size = tokenizer.get_vocab_size()
+        self.df_arr = None
+
+    def fit(self, X):
+        # TODO: Relearn IDFs over
+        # The current approach is valid (and analogous to how the sklearn TFIDF works)
+        # But learning IDFs over a larger corpus (that we learned our vocabularly from) should work better
+        new_tokens = self.tokenizer.encode(' '.join(X)).tokens
+        self.tokenizer.add_tokens(new_tokens)
+        self.size = self.tokenizer.get_vocab_size()
+
+        y = self.tokenizer.encode_batch(X)
+        res = np.zeros((len(X), self.size), dtype=float)
+
+        self.df_arr = np.zeros(self.size)
+        for i in range(len(y)):
+            for j in y[i].ids:
+                res[i, j] += 1
+            self.df_arr += (res[i] > 0).astype(int)
+        
+        df_arr_zero_indices = np.where(self.df_arr == 0)[0]
+        self.df_arr[df_arr_zero_indices] = 1
+
+    def transform(self, X):
+        y = self.tokenizer.encode_batch(X)
+        res = np.zeros((len(X), self.size), dtype=float)
+        for i in range(len(y)):
+            for j in y[i].ids:
+                res[i, j] += 1
+
+        # Apply IDF gathered from the fit function
+        for i in range(len(y)):
+            nonzero_indices = np.where(res[i] > 0)[0]
+            res[i, nonzero_indices] /= self.df_arr[nonzero_indices]
+
         return res
 
     def fit_transform(self, X):
@@ -77,13 +131,17 @@ def train_bpe_encoder(verbose=False):
     return tokenizer
   
 if __name__ == "__main__":
-    # tokenizer = train_bpe_encoder(verbose=True)
+    tokenizer = train_bpe_encoder(verbose=True)
     # print(tokenizer.encode("Hello, y'all! How are you?"))
     # print(tokenizer.encode_batch(["Hello, y'all!", "How are you?"]))
-    tokenizer = load_bpe_encoder()
-    X = [
-        "The quick brown fox OOGOGs",
-        "jumped over the",
-        "lazy dog"
-    ]
-    y = tokenizer.fit_transform(X)
+    # countvec = load_bpe_encoder()
+    # tfidfvec = load_bpe_tfidf_encoder()
+    # X = [
+    #     "the quick brown fox",
+    #     "jumped over the",
+    #     "lazy dog"
+    # ]
+    # count_transform = countvec.fit_transform(X)
+    # tfidf_transform = tfidfvec.fit_transform(X)
+    # print('count_transform:\n', count_transform.sum(axis=1, keepdims=True))
+    # print('tfidf_transform:\n', tfidf_transform.sum(axis=1, keepdims=True))

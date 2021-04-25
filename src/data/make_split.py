@@ -8,6 +8,8 @@ from sklearn.utils import shuffle
 # see http://scikit.ml/stratification.html to see how the multilabel stratification works
 # You probably need to run `pip install scikit-multilearn`
 from skmultilearn.model_selection import iterative_train_test_split as train_test_split
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 SEED = 1
 TEST_SIZE = 0.2
@@ -43,6 +45,7 @@ def make_split(verbose=False):
             X.append(row['title'] + ' ' + row['body'])
     if verbose:
         print(f"Kept {len(kept_tags)} tags and {len(X)} samples...")
+        print('Tags:', kept_tags)
         print("Shuffling...")
     X, y = shuffle(np.array(X).reshape(-1, 1), np.array(y), random_state=SEED)
     if verbose:
@@ -51,12 +54,32 @@ def make_split(verbose=False):
     save_split(X_train, y_train, X_test, y_test, index_to_tag)
     print(f"Split has been serialized to {SPLIT}.")
 
-def get_kept_tags(df):
+def get_kept_tags(df, make_power_law_graph=False):
     tag_to_frequency = Counter()
     # Counting tag frequencies
+    counts = []
     for tags in df['tags']:
         for tag in tags:
             tag_to_frequency[tag] += 1
+        counts.append(len(tags))
+
+    if make_power_law_graph:
+        print("Total tags:", len(tag_to_frequency))
+        print('Mean tag count:', np.mean(counts))
+        print('Std. dev of tag counts:', np.std(counts))
+        tags, freqs = [], []
+        for tag, freq in tag_to_frequency.items():
+            tags.append(tag)
+            freqs.append(freq)
+        df = pd.DataFrame({
+            'tag' : tags,
+            'tag frequency' : freqs
+        })
+        sns.histplot(data=df, x="tag frequency", bins=50, log_scale=True)
+        plt.title('tag frequency distribution')
+        # plt.show()
+        plt.savefig('tag_frequencies.png')
+
     return {tag for tag, frequency in tag_to_frequency.items() if frequency >= MIN_N}
 
 if __name__ == "__main__":
